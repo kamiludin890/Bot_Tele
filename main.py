@@ -2,15 +2,15 @@ from dotenv import load_dotenv
 import requests
 from fastapi import FastAPI
 import os
-
+last_update_id = 0
 load_dotenv()
 app = FastAPI()
-token = os.getenv("TOKEN")
+TOKEN = os.getenv("TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
 
 def send_telegram_message(text: str):
-    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 
     response = requests.post(
         url,
@@ -21,12 +21,18 @@ def send_telegram_message(text: str):
     )
 
     return response.json()
+    
+def get_updates():
+    url = f"https://api.telegram.org/bot{TOKEN}/getUpdates"
+    response = requests.get(url)
+
+    return response.json()
 
 
-@app.get("/")
-def notify():
+@app.get("/send/{message}")
+def notify(message: str):
     result = send_telegram_message(
-        "Ada request baru ke endpoint FastAPI!"
+        message
     )
 
     return {
